@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic[email]
+python-multipart
+google-genai
+redis>=5.0,<7.0
