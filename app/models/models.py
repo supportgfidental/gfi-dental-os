@@ -270,3 +270,42 @@ class IdempotencyRecord(Base):
     __table_args__ = (
         UniqueConstraint("clinic_id", "operation", "idempotency_key", name="uq_idempotency_clinic_operation_key"),
     )
+class InsuranceClaim(Base):
+    __tablename__ = "insurance_claims"
+    id = Column(Integer, primary_key=True, index=True)
+    clinic_id = Column(Integer, ForeignKey("clinics.id"), nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    treatment_plan_id = Column(Integer, ForeignKey("treatment_plans.id"), nullable=False)
+    status = Column(String, default="Generated")
+    packet_data = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class RecallCampaign(Base):
+    __tablename__ = "recall_campaigns"
+    id = Column(Integer, primary_key=True, index=True)
+    clinic_id = Column(Integer, ForeignKey("clinics.id"), nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    trigger_reason = Column(String, nullable=False)
+    message_content = Column(Text, nullable=False)
+    status = Column(String, default="Pending")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class PurchaseOrder(Base):
+    __tablename__ = "purchase_orders"
+    id = Column(Integer, primary_key=True, index=True)
+    clinic_id = Column(Integer, ForeignKey("clinics.id"), nullable=False, index=True)
+    supplier_name = Column(String, nullable=False)
+    items_json = Column(Text, nullable=False)
+    total_cost = Column(Numeric(12, 2), nullable=False)
+    status = Column(String, default="Draft")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class ClinicalAudit(Base):
+    __tablename__ = "clinical_audits"
+    id = Column(Integer, primary_key=True, index=True)
+    clinic_id = Column(Integer, ForeignKey("clinics.id"), nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    procedure_name = Column(String, nullable=False)
+    safety_status = Column(String, nullable=False)
+    audit_notes = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

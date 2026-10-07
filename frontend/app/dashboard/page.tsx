@@ -7,6 +7,8 @@ import { getTelephonyCallLogs, type TelephonyCallLog } from '../../lib/api';
 import ECAHWorkflowPanel from '../../components/ECAHWorkflowPanel';
 import ClaimsClearinghousePanel from '../../components/ClaimsClearinghousePanel';
 import FleetSyncDashboard from '../../components/FleetSyncDashboard';
+import Odontogram from '../../components/Odontogram';
+import AgentControlPanel from '../../components/AgentControlPanel';
 
 export default function GFIDentalDashboard() {
   const [activeTab, setActiveTab] = useState('copilot');
@@ -125,6 +127,8 @@ export default function GFIDentalDashboard() {
               { name: 'ECAH Neural Mesh', icon: Sparkles, id: 'ecah' },
               { name: 'Claims Clearinghouse', icon: ReceiptText, id: 'claims' },
               { name: 'Fleet & Offline Sync', icon: Truck, id: 'fleet' },
+              { name: 'Live Agent Command Center', icon: ShieldCheck, id: 'agents' },
+              { name: '32-Tooth State Odontogram', icon: Grid, id: 'interactive-odontogram' },
               { name: 'Practice Analytics', icon: Users, id: 'analytics' },
               { name: 'Architecture Matrix', icon: Layers, id: 'matrix' },
             ].map((item) => {
@@ -497,6 +501,24 @@ export default function GFIDentalDashboard() {
           {activeTab === 'ecah' && <ECAHWorkflowPanel />}
           {activeTab === 'claims' && <ClaimsClearinghousePanel />}
           {activeTab === 'fleet' && <FleetSyncDashboard />}
+          {activeTab === 'agents' && (
+            <div className="space-y-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Autonomous Execution Engine</h2>
+                <p className="text-sm text-neutral-400">Monitor and trigger vertical SaaS agents to manage revenue, cost, risk, and LTV.</p>
+              </div>
+              <AgentControlPanel clinicId={1} defaultTreatmentPlanId={1} />
+            </div>
+          )}
+          {activeTab === 'interactive-odontogram' && (
+            <div className="space-y-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Live Odontogram State</h2>
+                <p className="text-sm text-neutral-400">Click to update tooth states. Synchronizes with FastAPI backend instantly.</p>
+              </div>
+              <Odontogram clinicId={1} patientId={1} />
+            </div>
+          )}
 
           {activeTab === 'calls' && (
             <section className="space-y-5">
